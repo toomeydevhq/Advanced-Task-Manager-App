@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenTask | Advanced Task Manager</title>
+    <meta name="description" content="Beautiful PWA Task Management App">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Round">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="assets/icons/icon-192x192.png">
+</head>
+<body class="light-theme">
+    <div class="app-container">
+        <!-- Side Navigation - Desktop -->
+        <nav class="side-nav">
+            <div class="nav-header">
+                <h1 class="logo">ZenTask</h1>
+                <div class="nav-header-icons">
+                    <button class="theme-toggle">
+                        <span class="material-icons-round">brightness_4</span>
+                    </button>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="active" data-section="dashboard">
+                    <span class="material-icons-round">dashboard</span>
+                    <span>Dashboard</span>
+                </li>
+                <li data-section="tasks">
+                    <span class="material-icons-round">task</span>
+                    <span>My Tasks</span>
+                </li>
+                <li data-section="stats">
+                    <span class="material-icons-round">insights</span>
+                    <span>Statistics</span>
+                </li>
+                <li data-section="calendar">
+                    <span class="material-icons-round">calendar_today</span>
+                    <span>Calendar</span>
+                </li>
+                <li data-section="settings">
+                    <span class="material-icons-round">settings</span>
+                    <span>Settings</span>
+                </li>
+            </ul>
+            
+            <div class="user-profile">
+                <div class="avatar">U</div>
+                <div class="user-info">
+                    <span class="username">User Name</span>
+                    <span class="user-email">user@example.com</span>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <h2 id="section-title">Dashboard</h2>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <span class="material-icons-round">search</span>
+                        <input type="text" placeholder="Search tasks...">
+                    </div>
+                    <button class="btn primary" id="add-task-btn">
+                        <span class="material-icons-round">add</span>
+                        New Task
+                    </button>
+                </div>
+                </header>
+
+            <!-- Content Sections -->
+            <div class="content-section active" id="dashboard-section">
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h3>Good <span id="time-of-day">Morning</span>, User!</h3>
+                        <p>You have <span id="pending-count">0</span> tasks pending today</p>
+                    </div>
+                    <div class="welcome-illustration">
+                        <span class="material-icons-round">check_circle</span>
+                    </div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #e0e7ff; color: #6366f1;">
+                            <span class="material-icons-round">format_list_numbered</span>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="total-tasks">0</span>
+                            <span class="stat-label">Total Tasks</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #d1fae5; color: #10b981;">
+                            <span class="material-icons-round">check_circle</span>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="completed-tasks">0</span>
+                            <span class="stat-label">Completed</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #fee2e2; color: #ef4444;">
+                            <span class="material-icons-round">pending</span>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="overdue-tasks">0</span>
+                            <span class="stat-label">Overdue</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-tasks">
+                    <div class="section-header">
+                        <h4>Recent Tasks</h4>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="tasks-list" id="recent-tasks-list">
+                        <!-- Recent tasks will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="tasks-section">
+                <div class="tasks-header">
+                    <div class="tasks-filter">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="today">Today</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                        <button class="filter-btn" data-filter="overdue">Overdue</button>
+                    </div>
+                    <div class="sort-options">
+                        <select id="sort-tasks">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="due-date">Due Date</option>
+                            <option value="priority">Priority</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="tasks-container" id="tasks-container">
+                    <!-- Tasks will be inserted here -->
+                </div>
+            </div>
+
+            <div class="content-section" id="stats-section">
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <h4>Task Completion</h4>
+                        <div class="completion-chart" id="completion-chart">
+                            <!-- Chart will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Tasks by Category</h4>
+                        <div class="category-chart" id="category-chart">
+                            <!-- Chart will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Productivity Trend</h4>
+                        <div class="productivity-chart" id="productivity-chart">
+                            <!-- Chart will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h4>Priority Distribution</h4>
+                        <div class="priority-chart" id="priority-chart">
+                            <!-- Chart will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="calendar-section">
+                <div class="calendar-header">
+                    <button class="nav-btn" id="prev-month">
+                        <span class="material-icons-round">chevron_left</span>
+                    </button>
+                    <h4 id="current-month">Month Year</h4>
+                    <button class="nav-btn" id="next-month">
+                        <span class="material-icons-round">chevron_right</span>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar will be inserted here -->
+                </div>
+                <div class="calendar-events" id="calendar-events">
+                    <!-- Events will be inserted here -->
+                </div>
+            </div>
+
+            <div class="content-section" id="settings-section">
+                <div class="settings-card">
+                    <h4>App Settings</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="material-icons-round">dark_mode</span>
+                            <span>Dark Mode</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="material-icons-round">notifications</span>
+                            <span>Notifications</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="notifications-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="material-icons-round">backup</span>
+                            <span>Cloud Sync</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="sync-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h4>Task Settings</h4>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="material-icons-round">priority_high</span>
+                            <span>Default Priority</span>
+                        </div>
+                        <select id="default-priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="material-icons-round">category</span>
+                            <span>Default Category</span>
+                        </div>
+                        <select id="default-category">
+                            <option value="work">Work</option>
+                            <option value="personal" selected>Personal</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-card">
+                    <h4>Data Management</h4>
+                    <button class="btn secondary" id="export-data">
+                        <span class="material-icons-round">file_download</span>
+                        Export Data
+                    </button>
+                    <button class="btn secondary" id="import-data">
+                        <span class="material-icons-round">file_upload</span>
+                        Import Data
+                    </button>
+                    <button class="btn danger" id="reset-data">
+                        <span class="material-icons-round">delete</span>
+                        Reset All Data
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation - Mobile -->
+        <nav class="bottom-nav">
+            <ul class="bottom-nav-menu">
+                <li class="active" data-section="dashboard">
+                    <span class="material-icons-round">dashboard</span>
+                    <span>Dashboard</span>
+                </li>
+                <li data-section="tasks">
+                    <span class="material-icons-round">task</span>
+                    <span>Tasks</span>
+                </li>
+                <li data-section="stats">
+                    <span class="material-icons-round">insights</span>
+                    <span>Stats</span>
+                </li>
+                <li data-section="calendar">
+                    <span class="material-icons-round">calendar_today</span>
+                    <span>Calendar</span>
+                </li>
+                <li data-section="settings">
+                    <span class="material-icons-round">settings</span>
+                    <span>Settings</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Task Modal -->
+        <div class="modal hidden" id="task-modal">
+            <div class="modal-content">
+                <span class="close-btn material-icons-round">close</span>
+                <h3 id="modal-title">Add New Task</h3>
+                <form id="task-form">
+                    <input type="hidden" id="task-id">
+                    <div class="form-group">
+                        <label for="task-title">Task Title</label>
+                        <input type="text" id="task-title" placeholder="What needs to be done?" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Description</label>
+                        <textarea id="task-description" rows="3" placeholder="Add details..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-category">Category</label>
+                            <select id="task-category">
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="shopping">Shopping</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="date" id="task-due-date">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-reminder">Reminder</label>
+                            <select id="task-reminder">
+                                <option value="none">None</option>
+                                <option value="15m">15 minutes before</option>
+                                <option value="1h">1 hour before</option>
+                                <option value="1d">1 day before</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" id="cancel-task">Cancel</button>
+                        <button type="submit" class="btn primary">Save Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast hidden" id="toast"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
