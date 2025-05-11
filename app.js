@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTasks();
     });
 
-    // Desktop navigation
+    // Navigation
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const section = item.getAttribute('data-section');
@@ -47,13 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Mobile bottom navigation
     bottomNavItems.forEach(item => {
         item.addEventListener('click', () => {
             const section = item.getAttribute('data-section');
             showSection(section);
-            
-            // Update active state
             bottomNavItems.forEach(navItem => navItem.classList.remove('active'));
             item.classList.add('active');
         });
@@ -68,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialize calendar
+    // Calendar controls
     initCalendar();
     document.getElementById('prev-month').addEventListener('click', () => {
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -81,24 +78,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Functions
     function init() {
-        // Set initial theme based on preference
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-theme');
             darkModeToggle.checked = true;
         }
         
-        // Load initial data
         updateStatistics();
         renderTasks();
         renderCalendar();
         showSection('dashboard');
-        
-        // Set active nav item based on current section
         setActiveNavItem('dashboard');
+        
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
     }
 
     function setActiveNavItem(section) {
-        // Desktop nav
         navItems.forEach(item => {
             item.classList.remove('active');
             if (item.getAttribute('data-section') === section) {
@@ -106,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Mobile bottom nav
         bottomNavItems.forEach(item => {
             item.classList.remove('active');
             if (item.getAttribute('data-section') === section) {
@@ -126,11 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
         contentSections.forEach(sec => sec.classList.remove('active'));
         document.getElementById(`${section}-section`).classList.add('active');
         sectionTitle.textContent = section.charAt(0).toUpperCase() + section.slice(1);
-        
-        // Update active nav item
         setActiveNavItem(section);
         
-        // Update specific sections when shown
         if (section === 'stats') {
             updateStatistics();
         } else if (section === 'tasks') {
@@ -151,7 +152,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const taskReminder = document.getElementById('task-reminder');
 
         if (task) {
-            // Edit existing task
             modalTitle.textContent = 'Edit Task';
             taskId.value = task.id;
             taskTitle.value = task.title;
@@ -161,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
             taskPriority.value = task.priority || 'medium';
             taskReminder.value = task.reminder || 'none';
         } else {
-            // Add new task
             modalTitle.textContent = 'Add New Task';
             taskId.value = '';
             taskForm.reset();
@@ -198,14 +197,12 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (taskId) {
-            // Update existing task
             const index = tasks.findIndex(t => t.id === taskId);
             if (index !== -1) {
                 tasks[index] = taskData;
                 showToast('Task updated successfully');
             }
         } else {
-            // Add new task
             tasks.unshift(taskData);
             showToast('Task added successfully');
         }
@@ -227,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let filteredTasks = [...tasks];
         
-        // Apply filter
         switch (currentFilter) {
             case 'today':
                 const today = new Date().toISOString().split('T')[0];
@@ -243,7 +239,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
         
-        // Apply sorting
         switch (currentSort) {
             case 'newest':
                 filteredTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -265,7 +260,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
         
-        // Render all tasks
         tasksContainer.innerHTML = filteredTasks.length > 0 ? 
             filteredTasks.map(task => createTaskCard(task)).join('') :
             `<div class="empty-state">
@@ -273,14 +267,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p>No tasks found</p>
             </div>`;
             
-        // Render recent tasks (for dashboard)
         const recentTasks = [...tasks]
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5);
             
         recentTasksList.innerHTML = recentTasks.map(task => createTaskCard(task, true)).join('');
         
-        // Add event listeners to task actions
         document.querySelectorAll('.task-edit').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const taskId = e.currentTarget.closest('.task-card').dataset.id;
@@ -371,37 +363,53 @@ document.addEventListener('DOMContentLoaded', function() {
             !task.completed && task.dueDate && new Date(task.dueDate).toDateString() === new Date().toDateString()
         ).length;
 
-        // Update dashboard stats
         document.getElementById('total-tasks').textContent = totalTasks;
         document.getElementById('completed-tasks').textContent = completedTasks;
         document.getElementById('overdue-tasks').textContent = overdueTasks;
         document.getElementById('pending-count').textContent = pendingCount;
 
-        // Update time of day greeting
         const hour = new Date().getHours();
         let timeOfDay = 'Morning';
         if (hour >= 12 && hour < 17) timeOfDay = 'Afternoon';
         else if (hour >= 17) timeOfDay = 'Evening';
         document.getElementById('time-of-day').textContent = timeOfDay;
 
-        // Update charts
         updateCompletionChart(completedTasks, totalTasks - completedTasks);
         updateCategoryChart();
         updatePriorityChart();
+        updateProductivityChart();
     }
 
     function updateCompletionChart(completed, pending) {
-        const chart = document.getElementById('completion-chart');
-        chart.innerHTML = `
-            <div class="chart-container">
-                <div class="chart completed" style="height: ${(completed / (completed + pending || 1)) * 100}%"></div>
-                <div class="chart pending" style="height: ${(pending / (completed + pending || 1)) * 100}%"></div>
-            </div>
-            <div class="chart-legend">
-                <span><span class="legend-color completed"></span> Completed: ${completed}</span>
-                <span><span class="legend-color pending"></span> Pending: ${pending}</span>
-            </div>
-        `;
+        const ctx = document.getElementById('completion-canvas').getContext('2d');
+        
+        if (window.completionChart) {
+            window.completionChart.destroy();
+        }
+        
+        window.completionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending'],
+                datasets: [{
+                    data: [completed, pending],
+                    backgroundColor: [
+                        '#10b981',
+                        '#6366f1'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
     }
 
     function updateCategoryChart() {
@@ -410,16 +418,43 @@ document.addEventListener('DOMContentLoaded', function() {
             categories[task.category] = (categories[task.category] || 0) + 1;
         });
         
-        const chart = document.getElementById('category-chart');
-        chart.innerHTML = `
-            <div class="chart-container horizontal">
-                ${Object.entries(categories).map(([category, count]) => `
-                    <div class="chart-bar" style="width: ${(count / tasks.length || 0) * 100}%">
-                        <span class="bar-label">${category} (${count})</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        const ctx = document.getElementById('category-canvas').getContext('2d');
+        const categoryColors = {
+            work: '#3b82f6',
+            personal: '#ec4899',
+            shopping: '#f59e0b',
+            other: '#10b981'
+        };
+        
+        if (window.categoryChart) {
+            window.categoryChart.destroy();
+        }
+        
+        window.categoryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(categories),
+                datasets: [{
+                    data: Object.values(categories),
+                    backgroundColor: Object.keys(categories).map(cat => categoryColors[cat] || '#6b7280'),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
     function updatePriorityChart() {
@@ -428,21 +463,88 @@ document.addEventListener('DOMContentLoaded', function() {
             priorities[task.priority]++;
         });
         
-        const chart = document.getElementById('priority-chart');
-        chart.innerHTML = `
-            <div class="chart-container">
-                <div class="priority-chart">
-                    <div class="priority high" style="height: ${(priorities.high / tasks.length || 0) * 100}%"></div>
-                    <div class="priority medium" style="height: ${(priorities.medium / tasks.length || 0) * 100}%"></div>
-                    <div class="priority low" style="height: ${(priorities.low / tasks.length || 0) * 100}%"></div>
-                </div>
-                <div class="chart-legend">
-                    <span><span class="legend-color high"></span> High: ${priorities.high}</span>
-                    <span><span class="legend-color medium"></span> Medium: ${priorities.medium}</span>
-                    <span><span class="legend-color low"></span> Low: ${priorities.low}</span>
-                </div>
-            </div>
-        `;
+        const ctx = document.getElementById('priority-canvas').getContext('2d');
+        
+        if (window.priorityChart) {
+            window.priorityChart.destroy();
+        }
+        
+        window.priorityChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [priorities.high, priorities.medium, priorities.low],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#f59e0b',
+                        '#10b981'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateProductivityChart() {
+        const last7Days = [...Array(7)].map((_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            return date.toISOString().split('T')[0];
+        }).reverse();
+
+        const productivityData = last7Days.map(date => {
+            const dayTasks = tasks.filter(task => 
+                task.createdAt && task.createdAt.split('T')[0] === date
+            );
+            const completed = dayTasks.filter(task => task.completed).length;
+            return {
+                date,
+                total: dayTasks.length,
+                completed,
+                productivity: dayTasks.length ? (completed / dayTasks.length) * 100 : 0
+            };
+        });
+
+        const ctx = document.getElementById('productivity-canvas').getContext('2d');
+        
+        if (window.productivityChart) {
+            window.productivityChart.destroy();
+        }
+        
+        window.productivityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: last7Days.map(d => new Date(d).toLocaleDateString('en-US', { weekday: 'short' })),
+                datasets: [{
+                    label: 'Productivity %',
+                    data: productivityData.map(d => d.productivity),
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
     }
 
     function initCalendar() {
@@ -457,18 +559,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         
-        // Set month/year header
         monthYear.textContent = `${new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
         
-        // Get first day of month and total days
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         
-        // Clear previous calendar
         calendarGrid.innerHTML = '';
         calendarEvents.innerHTML = '';
         
-        // Add day headers
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         days.forEach(day => {
             const dayHeader = document.createElement('div');
@@ -477,44 +575,48 @@ document.addEventListener('DOMContentLoaded', function() {
             calendarGrid.appendChild(dayHeader);
         });
         
-        // Add empty cells for days before the first day of the month
         for (let i = 0; i < firstDay; i++) {
             const emptyDay = document.createElement('div');
             emptyDay.className = 'calendar-day empty';
             calendarGrid.appendChild(emptyDay);
         }
         
-        // Add days of the month
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(year, month, day);
             const dateString = date.toISOString().split('T')[0];
             const dayElement = document.createElement('div');
             dayElement.className = 'calendar-day';
             
-            // Check if this date has any tasks
             const dayTasks = tasks.filter(task => task.dueDate === dateString);
             
-            dayElement.innerHTML = `
-                <div class="calendar-day-number">${day}</div>
-                ${dayTasks.slice(0, 2).map(task => `
-                    <div class="calendar-event ${task.priority}-priority">
-                        ${task.title}
-                    </div>
-                `).join('')}
-                ${dayTasks.length > 2 ? `<div class="calendar-event more">+${dayTasks.length - 2} more</div>` : ''}
-            `;
-            
-            // Highlight current day
+            // Highlight today's date
             if (date.toDateString() === new Date().toDateString()) {
                 dayElement.classList.add('today');
+                dayElement.innerHTML = `
+                    <div class="calendar-day-number">${day}</div>
+                    ${dayTasks.slice(0, 2).map(task => `
+                        <div class="calendar-event ${task.priority}-priority">
+                            ${task.title}
+                        </div>
+                    `).join('')}
+                    ${dayTasks.length > 2 ? `<div class="calendar-event more">+${dayTasks.length - 2} more</div>` : ''}
+                `;
+            } else {
+                dayElement.innerHTML = `
+                    <div class="calendar-day-number">${day}</div>
+                    ${dayTasks.slice(0, 2).map(task => `
+                        <div class="calendar-event ${task.priority}-priority">
+                            ${task.title}
+                        </div>
+                    `).join('')}
+                    ${dayTasks.length > 2 ? `<div class="calendar-event more">+${dayTasks.length - 2} more</div>` : ''}
+                `;
             }
             
-            // Add click event to open task modal with this date
             dayElement.addEventListener('click', () => {
                 openTaskModal();
                 document.getElementById('task-due-date').value = dateString;
                 
-                // Show all tasks for this day in the events panel
                 calendarEvents.innerHTML = `
                     <h4>Tasks for ${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h4>
                     ${dayTasks.length > 0 ? 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZenTask | Advanced Task Manager</title>
+    <title>TaskZenith | Advanced Task Manager</title>
     <meta name="description" content="Beautiful PWA Task Management App">
     <meta name="theme-color" content="#6366f1">
     <link rel="manifest" href="manifest.json">
@@ -17,7 +17,10 @@
         <!-- Side Navigation - Desktop -->
         <nav class="side-nav">
             <div class="nav-header">
-                <h1 class="logo">ZenTask</h1>
+                <h1 class="logo">
+                    <span class="material-icons-round">terrain</span>
+                    TaskZenith
+                </h1>
                 <div class="nav-header-icons">
                     <button class="theme-toggle">
                         <span class="material-icons-round">brightness_4</span>
@@ -60,20 +63,19 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
-            <header class="main-header">
-                <h2 id="section-title">Dashboard</h2>
-                <div class="header-actions">
-                    <div class="search-box">
-                        <span class="material-icons-round">search</span>
-                        <input type="text" placeholder="Search tasks...">
-                    </div>
-                    <button class="btn primary" id="add-task-btn">
-                        <span class="material-icons-round">add</span>
-                        New Task
-                    </button>
-                </div>
-                </header>
-
+           <header class="main-header">
+        <h2 id="section-title">Dashboard</h2>
+        <div class="header-actions">
+            <div class="search-box">
+                <span class="material-icons-round">search</span>
+                <input type="text" placeholder="Search tasks...">
+            </div>
+            <button class="btn primary" id="add-task-btn">
+                <span class="material-icons-round">add</span>
+                New Task
+            </button>
+        </div>
+    </header>
             <!-- Content Sections -->
             <div class="content-section active" id="dashboard-section">
                 <div class="welcome-banner">
@@ -154,25 +156,25 @@
                     <div class="stats-card">
                         <h4>Task Completion</h4>
                         <div class="completion-chart" id="completion-chart">
-                            <!-- Chart will be inserted here -->
+                            <canvas id="completion-canvas"></canvas>
                         </div>
                     </div>
                     <div class="stats-card">
                         <h4>Tasks by Category</h4>
                         <div class="category-chart" id="category-chart">
-                            <!-- Chart will be inserted here -->
+                            <canvas id="category-canvas"></canvas>
                         </div>
                     </div>
                     <div class="stats-card">
                         <h4>Productivity Trend</h4>
                         <div class="productivity-chart" id="productivity-chart">
-                            <!-- Chart will be inserted here -->
+                            <canvas id="productivity-canvas"></canvas>
                         </div>
                     </div>
                     <div class="stats-card">
                         <h4>Priority Distribution</h4>
                         <div class="priority-chart" id="priority-chart">
-                            <!-- Chart will be inserted here -->
+                            <canvas id="priority-canvas"></canvas>
                         </div>
                     </div>
                 </div>
@@ -256,23 +258,21 @@
                             <option value="other">Other</option>
                         </select>
                     </div>
-                </div>
-                
-                <div class="settings-card">
-                    <h4>Data Management</h4>
-                    <button class="btn secondary" id="export-data">
-                        <span class="material-icons-round">file_download</span>
-                        Export Data
-                    </button>
-                    <button class="btn secondary" id="import-data">
-                        <span class="material-icons-round">file_upload</span>
-                        Import Data
-                    </button>
-                    <button class="btn danger" id="reset-data">
-                        <span class="material-icons-round">delete</span>
-                        Reset All Data
-                    </button>
-                </div>
+                </div><div class="settings-card">
+    <h4>Data Management</h4>
+    <button class="btn secondary" id="export-data">
+        <span class="material-icons-round">file_download</span>
+        Export Data
+    </button>
+    <button class="btn secondary" id="import-data">
+        <span class="material-icons-round">file_upload</span>
+        Import Data
+    </button>
+    <button class="btn danger" id="reset-data">
+        <span class="material-icons-round">delete</span>
+        Reset All Data
+    </button>
+               
             </div>
         </main>
 
@@ -363,6 +363,7 @@
         <div class="toast hidden" id="toast"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
